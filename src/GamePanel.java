@@ -13,7 +13,7 @@ public class GamePanel extends JPanel implements ActionListener
 	static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
 	static final int DELAY = 75;
 	
-	// tracks coordinates of snake
+	// coordinates for grid
 	final int x[] = new int[GAME_UNITS];
 	final int y[] = new int[GAME_UNITS];
 	
@@ -24,6 +24,7 @@ public class GamePanel extends JPanel implements ActionListener
 	int appleY;
 	char direction = 'R';
 	boolean gameRunning = false;
+	boolean gameOver = false;
 	
 	Timer timer;
 	Random random;
@@ -36,8 +37,6 @@ public class GamePanel extends JPanel implements ActionListener
 		this.setBackground(Color.BLACK);
 		this.setFocusable(true);
 		this.addKeyListener(new MyKeyAdapter());
-		
-		startGame();
 	}
 	
 	public void startGame()
@@ -51,6 +50,36 @@ public class GamePanel extends JPanel implements ActionListener
 		timer.start();
 	}
 	
+	public void retryGame()
+	{
+		gameOver = false;
+		bodyParts = 6;
+		applesEaten = 0;
+		direction = 'R';
+		startGame();
+		
+	}
+	
+	public void titleScreen(Graphics g)
+	{
+		if(!gameRunning && !gameOver)
+		{
+			g.setColor(Color.RED);
+			g.setFont(new Font("Comic Sans", Font.BOLD, 55));
+			FontMetrics metrics = getFontMetrics(g.getFont());
+			g.drawString("WELCOME TO SNAKE", 
+						(SCREEN_WIDTH - metrics.stringWidth("WELCOME TO SNAKE"))/2, 
+						(SCREEN_HEIGHT - (g.getFont().getSize()))/3);
+			
+			g.setFont(new Font("Comic Sans", Font.BOLD, 35));
+			metrics = getFontMetrics(g.getFont());
+			g.drawString("PRESS SPACE TO BEGIN", 
+					(SCREEN_WIDTH - metrics.stringWidth("PRESS SPACE TO BEGIN"))/2, 
+					(SCREEN_HEIGHT - (g.getFont().getSize()))/4*2);
+		}
+		
+	}
+	
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
@@ -58,8 +87,8 @@ public class GamePanel extends JPanel implements ActionListener
 	}
 	
 	public void draw(Graphics g)
-	{
-		if(gameRunning)
+	{	
+		if(gameRunning && !gameOver)
 		{
 			// draws background grid
 			for(int i = 0; i < SCREEN_HEIGHT/UNIT_SIZE; i++)
@@ -94,6 +123,9 @@ public class GamePanel extends JPanel implements ActionListener
 			FontMetrics metrics = getFontMetrics(g.getFont());
 			g.drawString("SCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("SCORE: " + applesEaten))/2, g.getFont().getSize());
 		}
+		
+		else if (!gameRunning && !gameOver)
+			titleScreen(g);
 		
 		else
 			gameOver(g);
@@ -171,11 +203,14 @@ public class GamePanel extends JPanel implements ActionListener
 		
 		// stops game if snake crashes
 		if(!gameRunning)
+		{
+			gameOver = true;
 			timer.stop();
+		}
 	}
 	
 	public void gameOver(Graphics g)
-	{
+	{		
 		// game over text
 		g.setColor(Color.RED);
 		g.setFont(new Font("Comic Sans", Font.BOLD, 75));
@@ -210,6 +245,13 @@ public class GamePanel extends JPanel implements ActionListener
 		public void keyPressed(KeyEvent e)
 		{
 			switch(e.getKeyCode()) {
+			case KeyEvent.VK_SPACE:
+				if(!gameRunning)
+					startGame();
+				else if(gameOver)
+					retryGame();
+				break;
+				
 			case KeyEvent.VK_LEFT:
 				if(direction != 'R')
 					direction = 'L';
@@ -228,7 +270,7 @@ public class GamePanel extends JPanel implements ActionListener
 			case KeyEvent.VK_DOWN:
 				if(direction != 'U')
 					direction = 'D';
-				break;
+				break;			
 			}
 		}
 	}
