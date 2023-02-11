@@ -2,6 +2,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.Graphics;
 import javax.swing.*;
+
+import java.util.Arrays;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener
@@ -53,6 +55,8 @@ public class GamePanel extends JPanel implements ActionListener
 	public void retryGame()
 	{
 		gameOver = false;
+		Arrays.fill(x, 0);
+		Arrays.fill(y, 0);
 		bodyParts = 6;
 		applesEaten = 0;
 		direction = 'R';
@@ -215,13 +219,21 @@ public class GamePanel extends JPanel implements ActionListener
 		g.setColor(Color.RED);
 		g.setFont(new Font("Comic Sans", Font.BOLD, 75));
 		FontMetrics metricsEnd = getFontMetrics(g.getFont());
-		g.drawString("GAME OVER", (SCREEN_WIDTH - metricsEnd.stringWidth("GAME OVER"))/2, SCREEN_HEIGHT/2);
+		g.drawString("GAME OVER",
+					(SCREEN_WIDTH - metricsEnd.stringWidth("GAME OVER"))/2, SCREEN_HEIGHT/2);
 
 		// draws score
-		g.setColor(Color.RED);
 		g.setFont(new Font("Comic Sans", Font.BOLD, 40));
 		FontMetrics metricsScore = getFontMetrics(g.getFont());
-		g.drawString("SCORE: " + applesEaten, (SCREEN_WIDTH - metricsScore.stringWidth("SCORE: " + applesEaten))/2, g.getFont().getSize());
+		g.drawString("SCORE: " + applesEaten, (SCREEN_WIDTH - 
+					metricsScore.stringWidth("SCORE: " + applesEaten))/2, 
+					g.getFont().getSize());
+		
+		// draws retry text
+		g.setFont(new Font("Comic Sans", Font.BOLD, 30));
+		FontMetrics metricsRetry = getFontMetrics(g.getFont());
+		g.drawString("PRESS SPACE TO RETRY", (SCREEN_WIDTH - metricsRetry.stringWidth("PRESS SPACE TO RETRY"))/2, 
+					(SCREEN_HEIGHT - (g.getFont().getSize()))/3*2);
 	}
 
 	@Override
@@ -246,7 +258,7 @@ public class GamePanel extends JPanel implements ActionListener
 		{
 			switch(e.getKeyCode()) {
 			case KeyEvent.VK_SPACE:
-				if(!gameRunning)
+				if(!gameRunning && !gameOver)
 					startGame();
 				else if(gameOver)
 					retryGame();
