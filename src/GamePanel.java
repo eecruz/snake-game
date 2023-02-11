@@ -27,14 +27,18 @@ public class GamePanel extends JPanel implements ActionListener
 	char direction = 'R';
 	boolean gameRunning = false;
 	boolean gameOver = false;
+	boolean paused = false;
 	
 	Timer timer;
 	Random random;
+	GameFrame frame;
 	
 	
-	GamePanel()
+	GamePanel(GameFrame gf)
 	{
 		random = new Random();
+		frame = gf;
+		
 		this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
 		this.setBackground(Color.BLACK);
 		this.setFocusable(true);
@@ -68,13 +72,14 @@ public class GamePanel extends JPanel implements ActionListener
 	{
 		if(!gameRunning && !gameOver)
 		{
-			g.setColor(Color.RED);
+			g.setColor(Color.GREEN);
 			g.setFont(new Font("Comic Sans", Font.BOLD, 55));
 			FontMetrics metrics = getFontMetrics(g.getFont());
 			g.drawString("WELCOME TO SNAKE", 
 						(SCREEN_WIDTH - metrics.stringWidth("WELCOME TO SNAKE"))/2, 
 						(SCREEN_HEIGHT - (g.getFont().getSize()))/3);
 			
+			g.setColor(Color.WHITE);
 			g.setFont(new Font("Comic Sans", Font.BOLD, 35));
 			metrics = getFontMetrics(g.getFont());
 			g.drawString("PRESS SPACE TO BEGIN", 
@@ -122,10 +127,19 @@ public class GamePanel extends JPanel implements ActionListener
 			}
 			
 			// draws score
-			g.setColor(Color.RED);
-			g.setFont(new Font("Comic Sans", Font.BOLD, 40));
-			FontMetrics metrics = getFontMetrics(g.getFont());
-			g.drawString("SCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("SCORE: " + applesEaten))/2, g.getFont().getSize());
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Comic Sans", Font.PLAIN, 40));
+			FontMetrics scoreMetrics = getFontMetrics(g.getFont());
+			g.drawString("SCORE: " + applesEaten, (SCREEN_WIDTH - 
+						scoreMetrics.stringWidth("SCORE: " + applesEaten))/2, g.getFont().getSize());
+		
+			if(paused)
+			{
+				g.setFont(new Font("Comic Sans", Font.BOLD, 50));
+				FontMetrics pauseMetrics = getFontMetrics(g.getFont());
+				g.drawString("PAUSED", (SCREEN_WIDTH - pauseMetrics.stringWidth("PAUSED"))/2,
+							(SCREEN_HEIGHT + g.getFont().getSize())/2);
+			}
 		}
 		
 		else if (!gameRunning && !gameOver)
@@ -194,7 +208,7 @@ public class GamePanel extends JPanel implements ActionListener
 			gameRunning = false;
 		
 		// right border
-		if(x[0] > SCREEN_WIDTH)
+		if(x[0] > SCREEN_WIDTH - UNIT_SIZE)
 			gameRunning = false;
 		
 		// top border
@@ -202,7 +216,7 @@ public class GamePanel extends JPanel implements ActionListener
 			gameRunning = false;
 		
 		// bottom border
-		if(y[0] > SCREEN_HEIGHT)
+		if(y[0] > SCREEN_HEIGHT - UNIT_SIZE)
 			gameRunning = false;
 		
 		// stops game if snake crashes
@@ -223,17 +237,22 @@ public class GamePanel extends JPanel implements ActionListener
 					(SCREEN_WIDTH - metricsEnd.stringWidth("GAME OVER"))/2, SCREEN_HEIGHT/2);
 
 		// draws score
-		g.setFont(new Font("Comic Sans", Font.BOLD, 40));
+		g.setColor(Color.WHITE);
+		g.setFont(new Font("Comic Sans", Font.PLAIN, 40));
 		FontMetrics metricsScore = getFontMetrics(g.getFont());
 		g.drawString("SCORE: " + applesEaten, (SCREEN_WIDTH - 
 					metricsScore.stringWidth("SCORE: " + applesEaten))/2, 
 					g.getFont().getSize());
 		
 		// draws retry text
-		g.setFont(new Font("Comic Sans", Font.BOLD, 30));
+		g.setFont(new Font("Comic Sans", Font.BOLD, 28));
 		FontMetrics metricsRetry = getFontMetrics(g.getFont());
 		g.drawString("PRESS SPACE TO RETRY", (SCREEN_WIDTH - metricsRetry.stringWidth("PRESS SPACE TO RETRY"))/2, 
 					(SCREEN_HEIGHT - (g.getFont().getSize()))/3*2);
+		g.drawString("OR", (SCREEN_WIDTH - metricsRetry.stringWidth("OR"))/2, 
+				(SCREEN_HEIGHT - (g.getFont().getSize()))/3*2 + g.getFont().getSize());
+		g.drawString("ESC TO QUIT", (SCREEN_WIDTH - metricsRetry.stringWidth("ESC TO QUIT"))/2, 
+				(SCREEN_HEIGHT - (g.getFont().getSize()))/3*2 + (2*g.getFont().getSize()));
 	}
 	
 	public void toggleTimer()
@@ -242,6 +261,8 @@ public class GamePanel extends JPanel implements ActionListener
 			timer.stop();
 		else
 			timer.start();
+		
+		paused = !paused;
 	}
 
 	@Override
@@ -266,33 +287,40 @@ public class GamePanel extends JPanel implements ActionListener
 		{
 			switch(e.getKeyCode()) {
 			case KeyEvent.VK_SPACE:
-				if(!gameRunning && !gameOver)
+				if(!gameRunning && !gameOver && !paused)
 					startGame();
-				else if(gameOver)
+				else if(gameOver && !paused)
 					retryGame();
 				break;
 				
 			case KeyEvent.VK_LEFT:
-				if(direction != 'R')
+				if(direction != 'R' && !gameOver && !paused)
 					direction = 'L';
 				break;
 			
 			case KeyEvent.VK_RIGHT:
-				if(direction != 'L')
+				if(direction != 'L' && !gameOver && !paused)
 					direction = 'R';
 				break;
 				
 			case KeyEvent.VK_UP:
-				if(direction != 'D')
+				if(direction != 'D' && !gameOver && !paused)
 					direction = 'U';
 				break;
 				
 			case KeyEvent.VK_DOWN:
-				if(direction != 'U')
+				if(direction != 'U' && !gameOver && !paused)
 					direction = 'D';
 				break;
 			case KeyEvent.VK_P:
-				toggleTimer();
+				if(gameRunning && !gameOver)
+				{
+					toggleTimer();
+					repaint();
+				}
+				break;
+			case KeyEvent.VK_ESCAPE:
+				frame.dispose();
 				break;
 			}
 		}
