@@ -235,6 +235,14 @@ public class GamePanel extends JPanel implements ActionListener
 		g.drawString("PRESS SPACE TO RETRY", (SCREEN_WIDTH - metricsRetry.stringWidth("PRESS SPACE TO RETRY"))/2, 
 					(SCREEN_HEIGHT - (g.getFont().getSize()))/3*2);
 	}
+	
+	public void toggleTimer()
+	{
+		if(timer.isRunning())
+			timer.stop();
+		else
+			timer.start();
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) 
@@ -282,7 +290,10 @@ public class GamePanel extends JPanel implements ActionListener
 			case KeyEvent.VK_DOWN:
 				if(direction != 'U')
 					direction = 'D';
-				break;			
+				break;
+			case KeyEvent.VK_P:
+				toggleTimer();
+				break;
 			}
 		}
 	}
