@@ -1,6 +1,10 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.awt.Graphics;
+
+import javax.sound.sampled.*;
 import javax.swing.*;
 
 import java.util.Arrays;
@@ -33,6 +37,8 @@ public class GamePanel extends JPanel implements ActionListener
 	Random random;
 	GameFrame frame;
 	
+	Clip musicPlayer;
+	
 	
 	GamePanel(GameFrame gf)
 	{
@@ -43,6 +49,26 @@ public class GamePanel extends JPanel implements ActionListener
 		this.setBackground(Color.BLACK);
 		this.setFocusable(true);
 		this.addKeyListener(new MyKeyAdapter());
+		
+		File gameMusic = new File("snakeMusic.wav");
+		
+		try {
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(gameMusic);
+			musicPlayer = AudioSystem.getClip();
+			musicPlayer.open(audioStream);
+			musicPlayer.loop(Clip.LOOP_CONTINUOUSLY);
+			musicPlayer.start();
+			musicPlayer.setMicrosecondPosition(500000);
+		
+		} catch (UnsupportedAudioFileException e) {
+			e.printStackTrace();		
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
+		
+		
 	}
 	
 	public void startGame()
@@ -321,6 +347,7 @@ public class GamePanel extends JPanel implements ActionListener
 				break;
 			case KeyEvent.VK_ESCAPE:
 				frame.dispose();
+				musicPlayer.close();
 				break;
 			}
 		}
