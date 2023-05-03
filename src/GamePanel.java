@@ -1,12 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.awt.Graphics;
-
 import javax.sound.sampled.*;
 import javax.swing.*;
-
 import java.util.Arrays;
 import java.util.Random;
 
@@ -48,6 +45,7 @@ public class GamePanel extends JPanel implements ActionListener
 		this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
 		this.setBackground(Color.BLACK);
 		this.setFocusable(true);
+		this.requestFocus();
 		this.addKeyListener(new MyKeyAdapter());
 		
 		File gameMusic = new File("snakeMusic.wav");
@@ -67,7 +65,6 @@ public class GamePanel extends JPanel implements ActionListener
 		} catch (LineUnavailableException e) {
 			e.printStackTrace();
 		}
-		
 		
 	}
 	
